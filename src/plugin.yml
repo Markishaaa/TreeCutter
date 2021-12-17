@@ -1,0 +1,12 @@
+name: TreeCutter
+version: 1.0
+author: markisha
+main: markisha.treecutter.TreeCutter
+api-version: 1.14
+
+commands:
+  timber:
+    description: TNT spawns next to you every 10 seconds.
+    usage: /<command>
+    permission: 
+    permission-message: You don't have <permission>
