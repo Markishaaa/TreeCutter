@@ -52,16 +52,6 @@ public class CutTree implements Listener {
 	}
 
 	private void breakLogs(Block b, Material m) {
-//		List<Block> logs = findConnectedLogsCoord(b, 0);
-//
-//		if (!logs.isEmpty()) {
-//
-//			for (Block log : logs) {
-//				log.breakNaturally();
-//			}
-//
-//		}
-		
 		int y = 0;
 		
 		while (true) {
