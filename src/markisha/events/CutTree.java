@@ -28,14 +28,14 @@ public class CutTree implements Listener {
 		Block b = event.getBlock();
 		Material m = b.getType();
 
-		if (Commands.playerEnabled.get(p).booleanValue()) {
+		if (Commands.playerEnabled.get(p) != null && Commands.playerEnabled.get(p).booleanValue()) {
 			if (isWood(b.getType()) && isAxe(pInv.getItemInMainHand().getType())
 					&& (p.getItemInHand().getDurability() != p.getItemInHand().getType().getMaxDurability() - 1)) {
 
 				floodBreakLogs(b, m, p);
 
 				breakCounter = 0;
-				
+
 				short max = pInv.getItemInMainHand().getType().getMaxDurability();
 
 				if (p.getItemInHand().getDurability() == p.getItemInHand().getType().getMaxDurability() - 1)
@@ -51,18 +51,18 @@ public class CutTree implements Listener {
 	}
 
 	private int breakCounter = 0;
-	
+
 	@SuppressWarnings("deprecation")
 	private void floodBreakLogs(Block b, Material m, Player p) {
 		if (!b.getType().equals(m))
 			return;
-		if ((b.getType().equals(Material.WARPED_WART_BLOCK) || b.getType().equals(Material.NETHER_WART_BLOCK)) && breakCounter > 50)
+		if ((b.getType().equals(Material.WARPED_WART_BLOCK) || b.getType().equals(Material.NETHER_WART_BLOCK))
+				&& breakCounter > 50)
 			return;
-		
-		
+
 		b.breakNaturally();
 		breakCounter++;
-		
+
 		if (p.getGameMode().equals(GameMode.SURVIVAL))
 			p.getInventory().getItemInMainHand()
 					.setDurability((short) (p.getInventory().getItemInMainHand().getDurability() + 1));
@@ -72,7 +72,6 @@ public class CutTree implements Listener {
 				for (int z = -1; z <= 1; z++) {
 					if (p.getItemInHand().getDurability() == p.getItemInHand().getType().getMaxDurability() - 1)
 						return;
-					
 
 					floodBreakLogs(b.getLocation().add(x, y, z).getBlock(), m, p);
 				}
