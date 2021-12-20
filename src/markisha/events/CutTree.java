@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.PlayerInventory;
 
 import markisha.commands.Commands;
@@ -28,7 +29,7 @@ public class CutTree implements Listener {
 		Block b = event.getBlock();
 		Material m = b.getType();
 
-		if (Commands.playerEnabled.get(p) != null && Commands.playerEnabled.get(p).booleanValue()) {
+		if (Commands.playerEnabled.containsKey(p) && Commands.playerEnabled.get(p).booleanValue()) {
 			if (isWood(b.getType()) && isAxe(pInv.getItemInMainHand().getType())
 					&& (p.getItemInHand().getDurability() != p.getItemInHand().getType().getMaxDurability() - 1)) {
 
@@ -92,6 +93,15 @@ public class CutTree implements Listener {
 			if (isLeaf(relative.getType())) {
 				relative.breakNaturally();
 			}
+		}
+	}
+	
+	@EventHandler
+	public void disableAfterQuiting(PlayerQuitEvent e) {
+		Player p = e.getPlayer();
+		
+		if (Commands.playerEnabled.containsKey(p) && Commands.playerEnabled.get(p).booleanValue() == true) {
+			Commands.playerEnabled.put(p, false);
 		}
 	}
 
