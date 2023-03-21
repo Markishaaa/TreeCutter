@@ -16,12 +16,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.Damageable;
 
 import markisha.commands.Commands;
 
 public class CutTree implements Listener {
 
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void cutTree(BlockBreakEvent event) {
 		Player p = event.getPlayer();
@@ -30,22 +30,28 @@ public class CutTree implements Listener {
 		Material m = b.getType();
 
 		if (Commands.playerEnabled.containsKey(p) && Commands.playerEnabled.get(p).booleanValue()) {
-			if (isWood(b.getType()) && isAxe(pInv.getItemInMainHand().getType())
-					&& (p.getItemInHand().getDurability() != p.getItemInHand().getType().getMaxDurability() - 1)) {
+			if (isWood(b.getType()) && isAxe(pInv.getItemInMainHand().getType())) {
+				Damageable axe = (Damageable) pInv.getItemInMainHand().getItemMeta();
 
-				floodBreakLogs(b, m, p);
+				if (axe.getDamage() != pInv.getItemInMainHand().getType().getMaxDurability() - 1) {
 
-				breakCounter = 0;
+					floodBreakLogs(b, m, p);
+					axe = (Damageable) pInv.getItemInMainHand().getItemMeta();
 
-				short max = pInv.getItemInMainHand().getType().getMaxDurability();
+					breakCounter = 0;
 
-				if (p.getItemInHand().getDurability() == p.getItemInHand().getType().getMaxDurability() - 1)
-					p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "(!) TreeCutter:" + ChatColor.RESET + ""
-							+ ChatColor.YELLOW + " Warning! Your axe is about to break!");
+					int max = pInv.getItemInMainHand().getType().getMaxDurability();
 
-				if (p.getItemInHand().getDurability() > max) {
-					pInv.clear(pInv.getHeldItemSlot());
-					p.playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+					if (axe.getDamage() == pInv.getItemInMainHand().getType().getMaxDurability() - 1) {
+						p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "(!) TreeCutter:" + ChatColor.RESET + ""
+								+ ChatColor.YELLOW + " Warning! Your axe is about to break!");
+						return;
+					}
+
+					if (axe.getDamage() > max) {
+						pInv.clear(pInv.getHeldItemSlot());
+						p.playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+					}
 				}
 			}
 		}
@@ -53,8 +59,11 @@ public class CutTree implements Listener {
 
 	private int breakCounter = 0;
 
-	@SuppressWarnings("deprecation")
 	private void floodBreakLogs(Block b, Material m, Player p) {
+		Damageable axe = (Damageable) p.getInventory().getItemInMainHand().getItemMeta();
+
+		if (axe.getDamage() == p.getInventory().getItemInMainHand().getType().getMaxDurability() - 1)
+			return;
 		if (!b.getType().equals(m))
 			return;
 		if ((b.getType().equals(Material.WARPED_WART_BLOCK) || b.getType().equals(Material.NETHER_WART_BLOCK))
@@ -63,17 +72,15 @@ public class CutTree implements Listener {
 
 		b.breakNaturally();
 		breakCounter++;
-
-		if (p.getGameMode().equals(GameMode.SURVIVAL))
-			p.getInventory().getItemInMainHand()
-					.setDurability((short) (p.getInventory().getItemInMainHand().getDurability() + 1));
+		
+		if (p.getGameMode().equals(GameMode.SURVIVAL)) {
+			axe.setDamage((axe.getDamage() + 1));
+			p.getInventory().getItemInMainHand().setItemMeta(axe);
+		}
 
 		for (int x = -1; x <= 1; x++) {
 			for (int y = -1; y <= 1; y++) {
 				for (int z = -1; z <= 1; z++) {
-					if (p.getItemInHand().getDurability() == p.getItemInHand().getType().getMaxDurability() - 1)
-						return;
-
 					floodBreakLogs(b.getLocation().add(x, y, z).getBlock(), m, p);
 				}
 			}
@@ -95,11 +102,11 @@ public class CutTree implements Listener {
 			}
 		}
 	}
-	
+
 	@EventHandler
 	public void disableAfterQuiting(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
-		
+
 		if (Commands.playerEnabled.containsKey(p) && Commands.playerEnabled.get(p).booleanValue() == true) {
 			Commands.playerEnabled.put(p, false);
 		}
@@ -116,6 +123,7 @@ public class CutTree implements Listener {
 		case FLOWERING_AZALEA_LEAVES:
 		case JUNGLE_LEAVES:
 		case SPRUCE_LEAVES:
+		case MANGROVE_LEAVES:
 			isLeaf = true;
 			break;
 		default:
@@ -138,6 +146,9 @@ public class CutTree implements Listener {
 		case NETHER_WART_BLOCK:
 		case WARPED_STEM:
 		case WARPED_WART_BLOCK:
+		case MANGROVE_LOG:
+		case MANGROVE_ROOTS:
+		case MUDDY_MANGROVE_ROOTS:
 			isWood = true;
 			break;
 		default:
