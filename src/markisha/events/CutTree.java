@@ -124,6 +124,7 @@ public class CutTree implements Listener {
 		case JUNGLE_LEAVES:
 		case SPRUCE_LEAVES:
 		case MANGROVE_LEAVES:
+		case CHERRY_LEAVES:
 			isLeaf = true;
 			break;
 		default:
@@ -149,6 +150,7 @@ public class CutTree implements Listener {
 		case MANGROVE_LOG:
 		case MANGROVE_ROOTS:
 		case MUDDY_MANGROVE_ROOTS:
+		case CHERRY_LOG:
 			isWood = true;
 			break;
 		default:
