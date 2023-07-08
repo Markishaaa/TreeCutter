@@ -12,18 +12,21 @@ import org.bukkit.entity.Player;
 public class Commands implements CommandExecutor {
 
 	public static Map<Player, Boolean> playerEnabled = new HashMap<>();
-	public static boolean enabled = false;
 	
-	public void setEnabledDisabled(Player player) {	
+	private void setEnabledDisabled(Player player) {	
 		if (playerEnabled.containsKey(player)) {
 			playerEnabled.put(player, !playerEnabled.get(player).booleanValue());
 		} else {
 			playerEnabled.put(player, true);
 		}
 	}
-
-	public boolean isEnabled() {
-		return enabled;
+	
+	private void setEnabled(Player player) {
+		playerEnabled.put(player, true);
+	}
+	
+	private void setDisabled(Player player) {
+		playerEnabled.put(player, false);
 	}
 	
 	@Override
@@ -33,9 +36,17 @@ public class Commands implements CommandExecutor {
 			Player player = (Player) sender;
 
 			if (cmd.getName().equalsIgnoreCase("tc")) {
-
-				setEnabledDisabled(player);
-
+				
+				if (args.length > 0) {
+					if (args[0].equalsIgnoreCase("e") || args[0].equalsIgnoreCase("enable")) {
+						setEnabled(player);
+					} else if (args[0].equalsIgnoreCase("d") || args[0].equalsIgnoreCase("disable")) {
+						setDisabled(player);
+					}
+				} else {
+					setEnabledDisabled(player);
+				}
+				
 				if (playerEnabled.get(player).booleanValue())
 					player.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "(!)" + ChatColor.RESET + "" + ChatColor.YELLOW + " TreeCutter enabled.");
 				else
