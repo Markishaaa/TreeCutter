@@ -1,6 +1,7 @@
 package markisha.events;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -27,13 +28,14 @@ public class CutTree implements Listener {
 		Player p = event.getPlayer();
 		PlayerInventory pInv = p.getInventory();
 		Block b = event.getBlock();
-		Material m = b.getType();
 
 		if (Commands.playerEnabled.containsKey(p) && Commands.playerEnabled.get(p).booleanValue()) {
 			if (isWood(b.getType()) && isAxe(pInv.getItemInMainHand().getType())) {
 				Damageable axe = (Damageable) pInv.getItemInMainHand().getItemMeta();
 
 				if (axe.getDamage() != pInv.getItemInMainHand().getType().getMaxDurability() - 1) {
+
+					List<Material> m = getMaterials(b.getType());
 
 					floodBreakLogs(b, m, p);
 					axe = (Damageable) pInv.getItemInMainHand().getItemMeta();
@@ -59,20 +61,31 @@ public class CutTree implements Listener {
 
 	private int breakCounter = 0;
 
-	private void floodBreakLogs(Block b, Material m, Player p) {
+	private void floodBreakLogs(Block b, List<Material> m, Player p) {
 		Damageable axe = (Damageable) p.getInventory().getItemInMainHand().getItemMeta();
 
 		if (axe.getDamage() == p.getInventory().getItemInMainHand().getType().getMaxDurability() - 1)
 			return;
-		if (!b.getType().equals(m))
+
+		boolean shouldContinue = false;
+
+		for (Material mat : m) {
+			if (mat.equals(b.getType())) {
+				shouldContinue = true;
+				break;
+			}
+		}
+
+		if (!shouldContinue)
 			return;
+
 		if ((b.getType().equals(Material.WARPED_WART_BLOCK) || b.getType().equals(Material.NETHER_WART_BLOCK))
 				&& breakCounter > 50)
 			return;
 
 		b.breakNaturally();
 		breakCounter++;
-		
+
 		if (p.getGameMode().equals(GameMode.SURVIVAL)) {
 			axe.setDamage((axe.getDamage() + 1));
 			p.getInventory().getItemInMainHand().setItemMeta(axe);
@@ -158,6 +171,19 @@ public class CutTree implements Listener {
 			break;
 		}
 		return isWood;
+	}
+
+	private List<Material> getMaterials(Material m) {
+		List<Material> materials;
+
+		if (m.equals(Material.MANGROVE_ROOTS) || m.equals(Material.MUDDY_MANGROVE_ROOTS)
+				|| m.equals(Material.MANGROVE_LOG)) {
+			materials = Arrays.asList(Material.MANGROVE_ROOTS, Material.MUDDY_MANGROVE_ROOTS, Material.MANGROVE_LOG);
+		} else {
+			materials = Arrays.asList(m);
+		}
+
+		return materials;
 	}
 
 	private boolean isAxe(Material material) {
