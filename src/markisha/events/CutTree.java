@@ -3,6 +3,7 @@ package markisha.events;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -10,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,6 +25,8 @@ import markisha.commands.Commands;
 
 public class CutTree implements Listener {
 
+	private Random random = new Random();
+	
 	@EventHandler
 	public void cutTree(BlockBreakEvent event) {
 		Player p = event.getPlayer();
@@ -87,8 +91,12 @@ public class CutTree implements Listener {
 		breakCounter++;
 
 		if (p.getGameMode().equals(GameMode.SURVIVAL)) {
-			axe.setDamage((axe.getDamage() + 1));
-			p.getInventory().getItemInMainHand().setItemMeta(axe);
+			double chance = getBreakingChance(axe);
+			
+			if (random.nextDouble() < chance / 100.0) {
+				axe.setDamage((axe.getDamage() + 1));
+				p.getInventory().getItemInMainHand().setItemMeta(axe);
+			}
 		}
 
 		for (int x = -1; x <= 1; x++) {
@@ -102,6 +110,10 @@ public class CutTree implements Listener {
 
 	private List<BlockFace> faces = new ArrayList<>(
 			List.of(BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.UP, BlockFace.DOWN));
+	
+	private double getBreakingChance(Damageable axe) {
+		return 100 / (axe.getEnchantLevel(Enchantment.DURABILITY) + 1);
+	}
 
 	@EventHandler
 	public void breakLeaves(LeavesDecayEvent l) {
