@@ -1,3 +1,10 @@
 bin/
 .settings/
 .classpath
+/target/
+/.project
+/.idea/
+*.iml
+*.ipr
+*.iws
+.DS_Store
