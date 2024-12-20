@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -22,11 +21,14 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 
 import markisha.commands.Commands;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class CutTree implements Listener {
 
 	private Random random = new Random();
-	
+
 	@EventHandler
 	public void cutTree(BlockBreakEvent event) {
 		Player p = event.getPlayer();
@@ -49,8 +51,10 @@ public class CutTree implements Listener {
 					int max = pInv.getItemInMainHand().getType().getMaxDurability();
 
 					if (axe.getDamage() == pInv.getItemInMainHand().getType().getMaxDurability() - 1) {
-						p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "(!) TreeCutter:" + ChatColor.RESET + ""
-								+ ChatColor.YELLOW + " Warning! Your axe is about to break!");
+						p.sendMessage(Component.text().content("(!) TreeCutter:").color(NamedTextColor.YELLOW)
+								.decoration(TextDecoration.BOLD, true)
+								.append(Component.text().content(" Warning! Your axe is about to break!")
+										.color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, false)));
 						return;
 					}
 
@@ -92,7 +96,7 @@ public class CutTree implements Listener {
 
 		if (p.getGameMode().equals(GameMode.SURVIVAL)) {
 			double chance = getBreakingChance(axe);
-			
+
 			if (random.nextDouble() < chance / 100.0) {
 				axe.setDamage((axe.getDamage() + 1));
 				p.getInventory().getItemInMainHand().setItemMeta(axe);
@@ -110,9 +114,9 @@ public class CutTree implements Listener {
 
 	private List<BlockFace> faces = new ArrayList<>(
 			List.of(BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.UP, BlockFace.DOWN));
-	
+
 	private double getBreakingChance(Damageable axe) {
-		return 100 / (axe.getEnchantLevel(Enchantment.DURABILITY) + 1);
+		return 100 / (axe.getEnchantLevel(Enchantment.UNBREAKING) + 1);
 	}
 
 	@EventHandler
@@ -150,6 +154,7 @@ public class CutTree implements Listener {
 		case SPRUCE_LEAVES:
 		case MANGROVE_LEAVES:
 		case CHERRY_LEAVES:
+		case PALE_OAK_LEAVES:
 			isLeaf = true;
 			break;
 		default:
@@ -176,6 +181,7 @@ public class CutTree implements Listener {
 		case MANGROVE_ROOTS:
 		case MUDDY_MANGROVE_ROOTS:
 		case CHERRY_LOG:
+		case PALE_OAK_LOG:
 			isWood = true;
 			break;
 		default:
