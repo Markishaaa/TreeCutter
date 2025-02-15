@@ -2,7 +2,7 @@ bin/
 .settings/
 .classpath
 /target/
-/.project
+.project
 /.idea/
 *.iml
 *.ipr
