@@ -1,7 +1,6 @@
 package markisha.events;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -21,6 +20,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 
 import markisha.commands.Commands;
+import markisha.util.WoodMaterialUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -36,12 +36,12 @@ public class CutTree implements Listener {
 		Block b = event.getBlock();
 
 		if (Commands.playerEnabled.containsKey(p) && Commands.playerEnabled.get(p).booleanValue()) {
-			if (isWood(b.getType()) && isAxe(pInv.getItemInMainHand().getType())) {
+			if (WoodMaterialUtil.isWood(b.getType()) && WoodMaterialUtil.isAxe(pInv.getItemInMainHand().getType())) {
 				Damageable axe = (Damageable) pInv.getItemInMainHand().getItemMeta();
 
 				if (axe.getDamage() != pInv.getItemInMainHand().getType().getMaxDurability() - 1) {
 
-					List<Material> m = getMaterials(b.getType());
+					List<Material> m = WoodMaterialUtil.getMaterials(b.getType());
 
 					floodBreakLogs(b, m, p);
 					axe = (Damageable) pInv.getItemInMainHand().getItemMeta();
@@ -88,7 +88,7 @@ public class CutTree implements Listener {
 			return;
 
 		if ((b.getType().equals(Material.WARPED_WART_BLOCK) || b.getType().equals(Material.NETHER_WART_BLOCK))
-				&& breakCounter > 50)
+				&& breakCounter > 96)
 			return;
 
 		b.breakNaturally();
@@ -126,7 +126,7 @@ public class CutTree implements Listener {
 		for (BlockFace face : faces) {
 			Block relative = leaf.getRelative(face);
 
-			if (isLeaf(relative.getType())) {
+			if (WoodMaterialUtil.isLeaf(relative.getType())) {
 				relative.breakNaturally();
 			}
 		}
@@ -139,87 +139,6 @@ public class CutTree implements Listener {
 		if (Commands.playerEnabled.containsKey(p) && Commands.playerEnabled.get(p).booleanValue() == true) {
 			Commands.playerEnabled.put(p, false);
 		}
-	}
-
-	private boolean isLeaf(Material material) {
-		boolean isLeaf;
-		switch (material) {
-		case OAK_LEAVES:
-		case ACACIA_LEAVES:
-		case AZALEA_LEAVES:
-		case BIRCH_LEAVES:
-		case DARK_OAK_LEAVES:
-		case FLOWERING_AZALEA_LEAVES:
-		case JUNGLE_LEAVES:
-		case SPRUCE_LEAVES:
-		case MANGROVE_LEAVES:
-		case CHERRY_LEAVES:
-		case PALE_OAK_LEAVES:
-			isLeaf = true;
-			break;
-		default:
-			isLeaf = false;
-			break;
-		}
-		return isLeaf;
-	}
-
-	private boolean isWood(Material material) {
-		boolean isWood;
-		switch (material) {
-		case BIRCH_LOG:
-		case DARK_OAK_LOG:
-		case SPRUCE_LOG:
-		case OAK_LOG:
-		case ACACIA_LOG:
-		case JUNGLE_LOG:
-		case CRIMSON_STEM:
-		case NETHER_WART_BLOCK:
-		case WARPED_STEM:
-		case WARPED_WART_BLOCK:
-		case MANGROVE_LOG:
-		case MANGROVE_ROOTS:
-		case MUDDY_MANGROVE_ROOTS:
-		case CHERRY_LOG:
-		case PALE_OAK_LOG:
-			isWood = true;
-			break;
-		default:
-			isWood = false;
-			break;
-		}
-		return isWood;
-	}
-
-	private List<Material> getMaterials(Material m) {
-		List<Material> materials;
-
-		if (m.equals(Material.MANGROVE_ROOTS) || m.equals(Material.MUDDY_MANGROVE_ROOTS)
-				|| m.equals(Material.MANGROVE_LOG)) {
-			materials = Arrays.asList(Material.MANGROVE_ROOTS, Material.MUDDY_MANGROVE_ROOTS, Material.MANGROVE_LOG);
-		} else {
-			materials = Arrays.asList(m);
-		}
-
-		return materials;
-	}
-
-	private boolean isAxe(Material material) {
-		boolean isAxe;
-		switch (material) {
-		case WOODEN_AXE:
-		case STONE_AXE:
-		case IRON_AXE:
-		case GOLDEN_AXE:
-		case DIAMOND_AXE:
-		case NETHERITE_AXE:
-			isAxe = true;
-			break;
-		default:
-			isAxe = false;
-			break;
-		}
-		return isAxe;
 	}
 
 }
