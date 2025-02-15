@@ -1,0 +1,11 @@
+name: TreeCutter
+version: 3.0
+author: markisha
+main: main.java.rs.markisha.TreeCutter
+api-version: 1.21.4
+
+commands:
+  tc:
+    usage: /<command>
+    aliases: [treecutter] 
+    
