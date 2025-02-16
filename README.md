@@ -14,7 +14,7 @@ Unlike other tree-cutting plugins that instantly remove entire trees, **TreeCutt
 ## How It Works
 
 ### Log Breaking
-- Works in **six directions (along X, Y, and Z axes)** using a revised flood-fill algorithm.
+- Works in **six directions (along X, Y, and Z axes)** including **diagonals** using a revised flood-fill algorithm.
 - Stops before breaking your axe (1 durability left) and warns you in chat.
 - **Wart blocks are limited to 96 per action** to prevent breaking an entire Nether forest with a single chop.
 
