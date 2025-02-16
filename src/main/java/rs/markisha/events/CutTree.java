@@ -1,10 +1,9 @@
 package main.java.rs.markisha.events;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 
@@ -14,7 +13,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,9 +32,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 public class CutTree implements Listener {
 
 	private Random random = new Random();
-
-	private List<BlockFace> faces = new ArrayList<>(
-			List.of(BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.UP, BlockFace.DOWN));
 
 	private int breakCounter = 0;
 
@@ -63,14 +58,14 @@ public class CutTree implements Listener {
 	}
 
 	private void floodBreakLogs(Block startBlock, List<Material> validMaterials, Player player) {
-		Queue<Block> queue = new LinkedList<>();
+		Deque<Block> stack = new ArrayDeque<>();
 		Set<Location> visitedBlocks = new HashSet<>();
 
-		queue.add(startBlock);
+		stack.add(startBlock);
 		visitedBlocks.add(startBlock.getLocation());
 
-		while (!queue.isEmpty()) {
-			Block block = queue.poll();
+		while (!stack.isEmpty()) {
+			Block block = stack.poll();
 
 			Damageable axe = (Damageable) player.getInventory().getItemInMainHand().getItemMeta();
 			Material axeType = player.getInventory().getItemInMainHand().getType();
@@ -89,13 +84,18 @@ public class CutTree implements Listener {
 				applyAxeDurabilityDamage(player);
 			}
 
-			for (BlockFace face : faces) {
-				Block adjacent = block.getRelative(face);
-				Location adjacentLoc = adjacent.getLocation();
+			for (int x = -1; x <= 1; x++) {
+				for (int y = -1; y <= 1; y++) {
+					for (int z = -1; z <= 1; z++) {
 
-				if (!visitedBlocks.contains(adjacentLoc)) {
-					queue.add(adjacent);
-					visitedBlocks.add(adjacentLoc);
+						Block adjacent = block.getLocation().add(x, y, z).getBlock();
+						Location adjacentLoc = adjacent.getLocation();
+
+						if (!visitedBlocks.contains(adjacentLoc) && isValidLogBlock(adjacent, validMaterials)) {
+							stack.add(adjacent);
+							visitedBlocks.add(adjacentLoc);
+						}
+					}
 				}
 			}
 		}
@@ -106,10 +106,7 @@ public class CutTree implements Listener {
 		Material axeType = inventory.getItemInMainHand().getType();
 		int maxDurability = axeType.getMaxDurability();
 
-		Bukkit.getLogger().info("Checking axe dura");
-
 		if (isAxeAlmostBroken(axe, axeType)) {
-			Bukkit.getLogger().info("OOPS");
 			player.sendMessage(
 					Component.text("(!) TreeCutter:").color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true)
 							.append(Component.text(" Warning! Your axe is about to break!").color(NamedTextColor.WHITE)
@@ -156,11 +153,16 @@ public class CutTree implements Listener {
 	public void breakLeaves(LeavesDecayEvent l) {
 		Block leaf = l.getBlock();
 
-		for (BlockFace face : faces) {
-			Block relative = leaf.getRelative(face);
+		for (int x = -1; x <= 1; x++) {
+			for (int y = -1; y <= 1; y++) {
+				for (int z = -1; z <= 1; z++) {
 
-			if (WoodMaterialUtil.isLeaf(relative.getType())) {
-				relative.breakNaturally();
+					Block relative = leaf.getLocation().add(x, y, z).getBlock();
+
+					if (WoodMaterialUtil.isLeaf(relative.getType())) {
+						relative.breakNaturally();
+					}
+				}
 			}
 		}
 	}
